@@ -8,6 +8,12 @@ class ESConnector:
         self.es = Elasticsearch()
 
     def init(self, index_name: str):
+        """
+        Gather a Counter object of tokens in the file and their count.
+        :param file: the path to the file.
+        :param lang: the language of file.
+        :return: a Counter object of items: token and count.
+        """
         dir_path = os.path.dirname(__file__)
         index_schema_path = f"{dir_path}/index_schemas/{index_name}.json"
 
@@ -20,34 +26,6 @@ class ESConnector:
         except IOError as e:
             return {'status': 'error', 'errors': e}
 
-    def load_data(self, index_name: str):
-        try:
-            with open(f'{os.getcwd()}/codesearch/preproc/result.json', encoding='utf-8') as json_file:
-                data = json.load(json_file)
-                for url in data:
-                    for path in data[url]:
-                        for name in data[url][path]:
-                            self.es.index(index=index_name, document=
-                                          {'url': url, 'file': path, 'function_name': name})
-        except Exception as e:
-            return {'status': 'error', 'errors': e}
-
-        return {'status': 'ok'}
-
-    def search(self, index_name: str, search_request: str):
-        search_request = v1.transform_input(search_request)
-        if search_request is None:
-            return {'status': 'error', 'errors': 'Failed to build search input'}
-        res = self.es.search(index=index_name, body=search_request)
-        return v1.transform_output(res)
-
-    def delete(self, index_name: str):
-        try:
-            self.es.indices.delete(index=index_name)
-        except Exception as e:
-            return {'status': 'error', 'errors': e}
-
-        return {'status': 'ok'}
-
+   
 if __name__ == '__main__':
     pass
